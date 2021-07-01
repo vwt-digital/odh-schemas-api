@@ -9,14 +9,14 @@ curl \
     --request GET \
     --header "Content-Type: application/json" \
     --header "Authorization: bearer ${identity_token}" \
-    https://europe-west1-"${CONFIG_PROJECT}".cloudfunctions.net/"${CONFIG_PROJECT}"-schemasapi/schemas/[TOPIC_NAME]")
+    https://europe-west1-"${CONFIG_PROJECT}".cloudfunctions.net/"${CONFIG_PROJECT}"-schemas-api/schemas/[TOPIC_NAME]")
 ~~~
 
 ## Retrieve an identity token in a Cloud Build
 Check below the code sample to get an identity token with a Cloud Build
 
 ~~~bash
-AUDIENCE="https://europe-west1-${CONFIG_PROJECT}.cloudfunctions.net/${CONFIG_PROJECT}-schemasapi"
+AUDIENCE="https://europe-west1-${CONFIG_PROJECT}.cloudfunctions.net/${CONFIG_PROJECT}-schemas-api"
 SERVICE_ACCOUNT="schemasapi@${CONFIG_PROJECT}.iam.gserviceaccount.com"
 
 token=$(curl \
