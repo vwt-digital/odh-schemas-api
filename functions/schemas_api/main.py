@@ -21,16 +21,22 @@ def schemas_api(request):
     """
 
     if not re.match(r"/schemas/([a-zA-Z-]*)", request.path):
-        return "Bad Request", 400
+        return "Bad Request", 400, {"Content-Type": "application/json"}
 
     key = request.path[9:]  # remove the /schemas/
+    content_type = request.headers.get("accept", "application/json")
 
     if key in gcs_processor.topic_schemas:
-        schema = gcs_processor.retrieve_schema(
-            config.BUCKET_SCHEMAS, gcs_processor.topic_schemas[key]["describedBy"]
-        )
-
-        if schema:
-            return schema, 200, {"Content-Type": "application/json"}
+        try:
+            schema = gcs_processor.retrieve_schema(
+                config.BUCKET_SCHEMAS,
+                gcs_processor.topic_schemas[key]["describedBy"],
+                content_type,
+            )
+        except (ConnectionError, TypeError):
+            return "Bad Request", 400, {"Content-Type": "application/json"}
+        else:
+            if schema:
+                return schema, 200, content_type
 
     return "Not Found", 404, {"Content-Type": "application/json"}

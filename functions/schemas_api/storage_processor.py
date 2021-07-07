@@ -1,6 +1,10 @@
 import json
+import logging
 
+import dicttoxml
 from google.cloud import storage
+
+dicttoxml.LOG.setLevel(logging.ERROR)
 
 
 class GCSProcessor:
@@ -44,7 +48,7 @@ class GCSProcessor:
 
         return topics_with_schema
 
-    def retrieve_schema(self, bucket_name, schema_name):
+    def retrieve_schema(self, bucket_name, schema_name, content_type):
         """
         Retrieve the schema
 
@@ -52,6 +56,8 @@ class GCSProcessor:
         :type bucket_name: str
         :param schema_name: Schema name
         :type schema_name: str
+        :param content_type: Content-Type
+        :type content_type: str
 
         :return: Schema
         """
@@ -60,10 +66,30 @@ class GCSProcessor:
         bucket = self.stg_client.get_bucket(bucket_name)
 
         if storage.Blob(bucket=bucket, name=schema_file_name).exists(self.stg_client):
-            try:
-                blob = bucket.blob(schema_file_name)
-                return blob.download_as_string()
-            except ConnectionError:
-                return None
+            blob = bucket.blob(schema_file_name)
+            return self.parse_schema(blob.download_as_string(), content_type)
+
+        return None
+
+    @staticmethod
+    def parse_schema(data, content_type):
+        """
+        Parse JSON schema towards format
+
+        :param data: JSON Schema
+        :param content_type: Content-type
+        :type content_type: str
+
+        :return: Parsed schema
+        """
+
+        if content_type == "application/json":
+            return data
+
+        if content_type == "application/xml":
+            xml = dicttoxml.dicttoxml(json.loads(data))
+
+            if xml:
+                return xml
 
         return None
