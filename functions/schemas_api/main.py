@@ -8,7 +8,7 @@ logging.getLogger().setLevel(logging.INFO)
 
 # Retrieve list of topic schemas on init
 gcs_processor = GCSProcessor(config.BUCKET_DATA_CATALOGS)
-logging.info(f"Pre-loaded {len(gcs_processor.topic_schemas)} topics")
+logging.info(f"Pre-loaded {len(gcs_processor.topic_schemas)} topics with schemas")
 
 
 def schemas_api(request):
@@ -26,6 +26,13 @@ def schemas_api(request):
     key = request.path[9:]  # remove the /schemas/
     content_type = request.headers.get("accept", "application/json")
 
+    if content_type not in ["application/json", "application/xml"]:
+        logging.info(
+            f"Requesting 'schemas/{key}' in unsupported format '{content_type}', returning"
+        )
+        return "Unsupported Content-Type", 415
+
+    logging.info(f"Requesting 'schemas/{key}' in format '{content_type}'")
     if key in gcs_processor.topic_schemas:
         try:
             schema = gcs_processor.retrieve_schema(
@@ -33,10 +40,15 @@ def schemas_api(request):
                 gcs_processor.topic_schemas[key]["describedBy"],
                 content_type,
             )
-        except (ConnectionError, TypeError):
+        except (ConnectionError, TypeError) as e:
+            logging.error(
+                f"Error when retrieving 'schemas/{key}' in format '{content_type}': {str(e)}"
+            )
             return "Bad Request", 400, {"Content-Type": "application/json"}
         else:
             if schema:
+                logging.info(f"Returning 'schemas/{key}' in format '{content_type}'")
                 return schema, 200, content_type
 
+    logging.info(f"Could not find 'schemas/{key}'")
     return "Not Found", 404, {"Content-Type": "application/json"}
