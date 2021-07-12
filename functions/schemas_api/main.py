@@ -20,6 +20,9 @@ def schemas_api(request):
     :return: Schema
     """
 
+    if not request.method == "GET":
+        return "Method Not Allowed", 405, {"Content-Type": "application/json"}
+
     if not re.match(r"/schemas/([a-zA-Z-]*)", request.path):
         return "Bad Request", 400, {"Content-Type": "application/json"}
 
