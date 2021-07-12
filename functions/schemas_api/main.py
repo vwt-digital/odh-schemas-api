@@ -51,7 +51,7 @@ def schemas_api(request):
         else:
             if schema:
                 logging.info(f"Returning 'schemas/{key}' in format '{content_type}'")
-                return schema, content_type
+                return schema, 200, {"Content-Type": content_type}
 
     logging.info(f"Could not find 'schemas/{key}'")
     return "Not Found", 404, {"Content-Type": "application/json"}
