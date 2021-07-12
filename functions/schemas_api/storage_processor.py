@@ -83,11 +83,13 @@ class GCSProcessor:
         :return: Parsed schema
         """
 
+        data_json = json.loads(data)
+
         if content_type == "application/json":
-            return data
+            return json.dumps(data_json)
 
         if content_type == "application/xml":
-            xml = dicttoxml.dicttoxml(json.loads(data))
+            xml = dicttoxml.dicttoxml(data_json)
 
             if xml:
                 return xml
