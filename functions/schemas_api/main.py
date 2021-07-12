@@ -30,7 +30,7 @@ def schemas_api(request):
         logging.info(
             f"Requesting 'schemas/{key}' in unsupported format '{content_type}', returning"
         )
-        return "Unsupported Content-Type", 415
+        return "Unsupported Accept-Type", 415, {"Content-Type": "application/json"}
 
     logging.info(f"Requesting 'schemas/{key}' in format '{content_type}'")
     if key in gcs_processor.topic_schemas:
@@ -48,7 +48,7 @@ def schemas_api(request):
         else:
             if schema:
                 logging.info(f"Returning 'schemas/{key}' in format '{content_type}'")
-                return schema, 200, content_type
+                return schema, content_type
 
     logging.info(f"Could not find 'schemas/{key}'")
     return "Not Found", 404, {"Content-Type": "application/json"}
