@@ -1,0 +1,5 @@
+{
+  "entry-point": "schemas_api",
+  "memory": "256MB",
+  "runtime": "python37"
+}
